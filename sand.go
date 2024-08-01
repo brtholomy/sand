@@ -106,11 +106,13 @@ func Run(rec *Record, p *Pile, iters int) {
 		Cascade(rec, p, &c, step)
 		// TODO: only record a pile once per step for now:
 		rec.seq[step] = *p
-		// progress at some prime
-		if 0 == step%255 {
-			fmt.Println("step:", step)
+		// print progress every 100th
+		if 0 == step%int(iters/100) {
+			// NOTE: the \r carriage return
+			fmt.Printf("\rstep:%4d", step)
 		}
 	}
+	fmt.Println()
 }
 
 func GetTotals(rec *Record) map[int]float64 {
@@ -171,10 +173,11 @@ func main() {
 	totals := GetTotals(&rec)
 	logs := GetLogTotals(&totals)
 
-	fmt.Println(logs)
+	fmt.Println("log(cascade) at size 1:", logs[1])
 	if opts.Verbose {
-		fmt.Println(pile)
-		fmt.Println(totals)
+		fmt.Println("last pile:", pile)
+		fmt.Println("totals:", totals)
+		fmt.Println("logs:", logs)
 	}
 	if opts.Chart {
 		MakeChart(logs, opts)
