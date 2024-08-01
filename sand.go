@@ -113,7 +113,7 @@ func Run(rec *Record, p *Pile, iters int) {
 		// print progress every 100th
 		if 0 == step%int(iters/100) {
 			// NOTE: the \r carriage return
-			fmt.Printf("\rstep:%4d", step)
+			fmt.Printf("\rprogress: %2d%%", int(100*step/iters))
 		}
 	}
 	fmt.Println()
