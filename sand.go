@@ -18,7 +18,7 @@ import (
 type Opts struct {
 	Size    int     `short:"s" long:"size" default:"10" description:"size of the grid"`
 	Iters   int     `short:"i" long:"iters" default:"1000" description:"number of iterations"`
-	Height  uint32  `short:"h" long:"height" default:"4" description:"maximum height of a pile"`
+	Height  uint32  `short:"x" long:"max" default:"4" description:"maximum height of a pile"`
 	Weight  float32 `short:"w" long:"weight" default:"1" description:"weight of center placement"`
 	Verbose bool    `short:"v" long:"verbose" description:"verbose output"`
 	Chart   bool    `short:"c" long:"chart" description:"make a chart of the totals"`
