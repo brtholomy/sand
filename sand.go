@@ -3,16 +3,17 @@ package main
 import (
 	"fmt"
 	"github.com/go-echarts/go-echarts/v2/charts"
-	"github.com/go-echarts/go-echarts/v2/opts"
+	chartopts "github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/jessevdk/go-flags"
 	// "golang.org/x/exp/maps"
+	"math"
 	"math/rand"
 	"os"
 	"sort"
 	"time"
 )
 
-var Opts struct {
+type Opts struct {
 	Size    int     `short:"s" long:"size" default:"10" description:"size of the grid"`
 	Iters   int     `short:"i" long:"iters" default:"1000" description:"number of iterations"`
 	Height  uint32  `short:"h" long:"height" default:"4" description:"maximum height of a pile"`
@@ -113,33 +114,41 @@ func Run(rec *Record, p *Pile, iters int) {
 	}
 }
 
-func GetTotals(rec *Record) map[int]int {
-	totals := make(map[int]int, len(rec.cascades))
+func GetTotals(rec *Record) map[int]float64 {
+	totals := make(map[int]float64, len(rec.cascades))
 	for _, c := range rec.cascades {
 		totals[c] += 1
 	}
 	return totals
 }
 
-func MakeChart(totals map[int]int) {
+func GetLogTotals(totals *map[int]float64) map[int]float64 {
+	logs := make(map[int]float64, len(*totals))
+	for k, v := range *totals {
+		logs[k] = math.Log(float64(v))
+	}
+	return logs
+}
+
+func MakeChart(totals map[int]float64, opts Opts) {
 	bar := charts.NewBar()
 
 	// set some global options like Title/Legend/ToolTip or anything else
-	bar.SetGlobalOptions(charts.WithTitleOpts(opts.Title{
+	bar.SetGlobalOptions(charts.WithTitleOpts(chartopts.Title{
 		Title:    "sandpile simulation",
-		Subtitle: "number of cascades per size of cascade",
+		Subtitle: fmt.Sprintf("log(cascades) per size of cascade, size:%d iters:%d", opts.Size, opts.Iters),
 	}))
 
 	// TODO: this is stupid. should be a sorted map.
 	// https://github.com/elliotchance/orderedmap
-	values := make([]opts.BarData, 0)
+	values := make([]chartopts.BarData, 0)
 	keys := make([]int, 0)
 	for k, _ := range totals {
 		keys = append(keys, k)
 	}
 	sort.Ints(keys)
 	for k := range keys {
-		values = append(values, opts.BarData{Value: totals[k]})
+		values = append(values, chartopts.BarData{Value: totals[k]})
 	}
 
 	bar.SetXAxis(keys).
@@ -149,21 +158,24 @@ func MakeChart(totals map[int]int) {
 }
 
 func main() {
-	_, err := flags.Parse(&Opts)
+	opts := Opts{}
+	_, err := flags.Parse(&opts)
 	if err != nil {
 		panic(err)
 	}
-	rec := MakeRecord(Opts.Size, Opts.Iters)
-	pile := MakePile(Opts.Size, Opts.Height, Opts.Weight)
+	rec := MakeRecord(opts.Size, opts.Iters)
+	pile := MakePile(opts.Size, opts.Height, opts.Weight)
 
-	Run(&rec, &pile, Opts.Iters)
+	Run(&rec, &pile, opts.Iters)
 	totals := GetTotals(&rec)
+	logs := GetLogTotals(&totals)
 
-	if Opts.Verbose {
+	fmt.Println(logs)
+	if opts.Verbose {
 		fmt.Println(pile)
+		fmt.Println(totals)
 	}
-	if Opts.Chart {
-		MakeChart(totals)
+	if opts.Chart {
+		MakeChart(logs, opts)
 	}
-	fmt.Println(totals)
 }
