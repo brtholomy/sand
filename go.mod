@@ -1,3 +1,3 @@
-module github.com/brtholomy/sandgo
+module github.com/brtholomy/sand
 
 go 1.22.5
