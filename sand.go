@@ -2,8 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-echarts/go-echarts/v2/charts"
+	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/jessevdk/go-flags"
+	// "golang.org/x/exp/maps"
 	"math/rand"
+	"os"
+	"sort"
 	"time"
 )
 
@@ -13,6 +18,7 @@ var Opts struct {
 	Height  uint32  `short:"h" long:"height" default:"4" description:"maximum height of a pile"`
 	Weight  float32 `short:"w" long:"weight" default:"1" description:"weight of center placement"`
 	Verbose bool    `short:"v" long:"verbose" description:"verbose output"`
+	Chart   bool    `short:"c" long:"chart" description:"make a chart of the totals"`
 }
 
 type Coord struct {
@@ -110,6 +116,33 @@ func GetTotals(rec *Record) map[int]int {
 	return totals
 }
 
+func MakeChart(totals map[int]int) {
+	bar := charts.NewBar()
+
+	// set some global options like Title/Legend/ToolTip or anything else
+	bar.SetGlobalOptions(charts.WithTitleOpts(opts.Title{
+		Title:    "sandpile simulation",
+		Subtitle: "number of cascades per size of cascade",
+	}))
+
+	// TODO: this is stupid. should be a sorted map.
+	// https://github.com/elliotchance/orderedmap
+	values := make([]opts.BarData, 0)
+	keys := make([]int, 0)
+	for k, _ := range totals {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+	for k := range keys {
+		values = append(values, opts.BarData{Value: totals[k]})
+	}
+
+	bar.SetXAxis(keys).
+		AddSeries("number of cascades", values)
+	f, _ := os.Create("bar.html")
+	bar.Render(f)
+}
+
 func main() {
 	_, err := flags.Parse(&Opts)
 	if err != nil {
@@ -123,6 +156,9 @@ func main() {
 
 	if Opts.Verbose {
 		fmt.Println(pile)
+	}
+	if Opts.Chart {
+		MakeChart(totals)
 	}
 	fmt.Println(totals)
 }
