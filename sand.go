@@ -39,7 +39,8 @@ type Record struct {
 }
 
 func MakeRecord(size int, iters int) Record {
-	seq := make([]Pile, iters, iters*size)
+	// NOTE: make enough room for the whole sequence:
+	seq := make([]Pile, iters)
 	casc := make(map[int]int, size)
 	return Record{seq, casc}
 }
@@ -92,7 +93,6 @@ func Cascade(rec *Record, p *Pile, c *Coord, step int) {
 		for _, v := range GetNeighbors(c) {
 			if WithinGrid(p, &v) {
 				PlaceGrain(p, &v)
-				rec.seq = append(rec.seq, *p)
 				Cascade(rec, p, &v, step)
 			}
 		}
@@ -104,7 +104,12 @@ func Run(rec *Record, p *Pile, iters int) {
 		c := RandomCoord(p)
 		PlaceGrain(p, &c)
 		Cascade(rec, p, &c, step)
-		rec.seq = append(rec.seq, *p)
+		// TODO: only record a pile once per step for now:
+		rec.seq[step] = *p
+		// progress at some prime
+		if 0 == step%255 {
+			fmt.Println("step:", step)
+		}
 	}
 }
 
