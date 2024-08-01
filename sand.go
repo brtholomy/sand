@@ -5,7 +5,6 @@ import (
 	"github.com/go-echarts/go-echarts/v2/charts"
 	chartopts "github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/jessevdk/go-flags"
-	// "golang.org/x/exp/maps"
 	"math"
 	"math/rand"
 	"os"
@@ -135,8 +134,10 @@ func MakeChart(totals map[int]float64, opts Opts) {
 
 	// set some global options like Title/Legend/ToolTip or anything else
 	bar.SetGlobalOptions(charts.WithTitleOpts(chartopts.Title{
-		Title:    "sandpile simulation",
-		Subtitle: fmt.Sprintf("log(cascades) per size of cascade, size:%d iters:%d", opts.Size, opts.Iters),
+		Title: "sandpile simulation",
+		Subtitle: fmt.Sprintf(
+			"log(cascades) per size of cascade, size:%d iters:%d height:%d",
+			opts.Size, opts.Iters, opts.Height),
 	}))
 
 	// TODO: this is stupid. should be a sorted map.
