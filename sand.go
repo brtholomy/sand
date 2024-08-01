@@ -2,9 +2,18 @@ package main
 
 import (
 	"fmt"
+	"github.com/jessevdk/go-flags"
 	"math/rand"
 	"time"
 )
+
+var Opts struct {
+	Size    int     `short:"s" long:"size" default:"10" description:"size of the grid"`
+	Iters   int     `short:"i" long:"iters" default:"1000" description:"number of iterations"`
+	Height  uint32  `short:"h" long:"height" default:"4" description:"maximum height of a pile"`
+	Weight  float32 `short:"w" long:"weight" default:"1" description:"weight of center placement"`
+	Verbose bool    `short:"v" long:"verbose" description:"verbose output"`
+}
 
 type Coord struct {
 	x uint32
@@ -15,6 +24,7 @@ type Pile struct {
 	grid          [][]uint32
 	height        uint32
 	center_weight float32
+	r             rand.Rand
 }
 
 type Record struct {
@@ -38,13 +48,13 @@ func MakeGrid(size int) [][]uint32 {
 
 func MakePile(size int, height uint32, weight float32) Pile {
 	g := MakeGrid(size)
-	return Pile{g, height, weight}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return Pile{g, height, weight, *r}
 }
 
 func RandomCoord(p *Pile) Coord {
 	size := len(p.grid) - 1
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return Coord{uint32(r.Intn(size)), uint32(r.Intn(size))}
+	return Coord{uint32(p.r.Intn(size)), uint32(p.r.Intn(size))}
 }
 
 func PlaceGrain(p *Pile, c *Coord) {
@@ -101,16 +111,18 @@ func GetTotals(rec *Record) map[int]int {
 }
 
 func main() {
-	size := 20
-	iters := 1000
-	var height uint32 = 4
-	var weight float32 = 1.0
-	rec := MakeRecord(size, iters)
-	pile := MakePile(size, height, weight)
+	_, err := flags.Parse(&Opts)
+	if err != nil {
+		panic(err)
+	}
+	rec := MakeRecord(Opts.Size, Opts.Iters)
+	pile := MakePile(Opts.Size, Opts.Height, Opts.Weight)
 
-	Run(&rec, &pile, iters)
+	Run(&rec, &pile, Opts.Iters)
 	totals := GetTotals(&rec)
 
-	fmt.Println(pile)
+	if Opts.Verbose {
+		fmt.Println(pile)
+	}
 	fmt.Println(totals)
 }
