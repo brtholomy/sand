@@ -73,7 +73,7 @@ func PlaceGrain(p *Pile, c *Coord) {
 }
 
 func WillFall(p *Pile, c *Coord) bool {
-	return p.grid[c.x][c.y] > p.height
+	return p.grid[c.x][c.y] >= p.height
 }
 
 func WithinGrid(p *Pile, c *Coord) bool {
@@ -92,7 +92,7 @@ func GetNeighbors(c *Coord) [4]Coord {
 
 func Cascade(rec *Record, p *Pile, c *Coord, step int) {
 	if WillFall(p, c) {
-		p.grid[c.x][c.y] -= 4
+		p.grid[c.x][c.y] -= p.height
 		rec.cascades[step] += 1
 		for _, v := range GetNeighbors(c) {
 			if WithinGrid(p, &v) {
