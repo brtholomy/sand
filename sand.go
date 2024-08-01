@@ -5,6 +5,9 @@ import (
 	"github.com/go-echarts/go-echarts/v2/charts"
 	chartopts "github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/jessevdk/go-flags"
+	"image"
+	"image/color"
+	"image/png"
 	"math"
 	"math/rand"
 	"os"
@@ -19,6 +22,7 @@ type Opts struct {
 	Weight  float32 `short:"w" long:"weight" default:"1" description:"weight of center placement"`
 	Verbose bool    `short:"v" long:"verbose" description:"verbose output"`
 	Chart   bool    `short:"c" long:"chart" description:"make a chart of the totals"`
+	Pixel   bool    `short:"p" long:"pixel" description:"make a pixel image of the pile"`
 }
 
 type Coord struct {
@@ -160,6 +164,23 @@ func MakeChart(totals map[int]float64, opts Opts) {
 	bar.Render(f)
 }
 
+func MakeImage(p *Pile) {
+	width := len(p.grid)
+	upLeft := image.Point{0, 0}
+	lowRight := image.Point{width, width}
+	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+
+	for i, x := range p.grid {
+		for j, y := range x {
+			factor := 255 / p.height
+			c := color.RGBA{uint8(factor * y), 0, 0, 0xff}
+			img.Set(i, j, c)
+		}
+	}
+	f, _ := os.Create("pile.png")
+	png.Encode(f, img)
+}
+
 func main() {
 	opts := Opts{}
 	_, err := flags.Parse(&opts)
@@ -181,5 +202,8 @@ func main() {
 	}
 	if opts.Chart {
 		MakeChart(logs, opts)
+	}
+	if opts.Pixel {
+		MakeImage(&pile)
 	}
 }
