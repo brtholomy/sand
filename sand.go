@@ -84,9 +84,9 @@ func WithinGrid(p *Pile, c *Coord) bool {
 func GetNeighbors(c *Coord) [4]Coord {
 	return [4]Coord{
 		Coord{c.x + 1, c.y},
-		Coord{c.x + 1, c.y + 1},
 		Coord{c.x - 1, c.y},
-		Coord{c.x - 1, c.y - 1},
+		Coord{c.x, c.y + 1},
+		Coord{c.x, c.y - 1},
 	}
 }
 
