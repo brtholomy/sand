@@ -8,7 +8,7 @@ To run the simulation with a grid of 50x50 and 1M iterations:
 go run sand.go --size 50 --iters 1_000_000 --chart
 ```
 
-![chart](chart_50_size_1M_iters.png)
+![chart](imgs/chart_50_size_1M_iters.png)
 
 End result of a 500 width pile after 100k iterations:
 
@@ -16,15 +16,15 @@ End result of a 500 width pile after 100k iterations:
 go run sand.go -s 500 -i 100_000 --pixel
 ```
 
-![pile](pile_500px_100k_iters.png)
+![pile](imgs/pile_500px_100k_iters.png)
 
-End result of a 100 width pile after 2M iterations with height of 16:
+End result of a 200 width pile after 4M iterations with height of 12:
 
 ```sh
-go run sand.go -x 16 -s 100 -i 2_000_000 --pixel
+go run sand.go -x 12 -s 200 -i 4_000_000 --pixel
 ```
 
-![pile](pile_100px_2M_iters.png)
+![pile](imgs/pile_200-size_4000000-iters_12-height.png)
 
 see all options:
 

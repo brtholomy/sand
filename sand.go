@@ -160,7 +160,7 @@ func MakeChart(totals map[int]float64, opts Opts) {
 
 	bar.SetXAxis(keys).
 		AddSeries("number of cascades", values)
-	f, _ := os.Create("bar.html")
+	f, _ := os.Create("imgs/bar.html")
 	bar.Render(f)
 }
 
@@ -177,7 +177,7 @@ func MakeImage(p *Pile, opts Opts) {
 		}
 	}
 	f, _ := os.Create(fmt.Sprintf(
-		"pile_%d-size_%d-iters_%d-height.png", opts.Size, opts.Iters, opts.Height))
+		"imgs/pile_%d-size_%d-iters_%d-height.png", opts.Size, opts.Iters, opts.Height))
 	png.Encode(f, img)
 }
 
