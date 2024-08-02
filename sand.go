@@ -164,10 +164,9 @@ func MakeChart(totals map[int]float64, opts Opts) {
 	bar.Render(f)
 }
 
-func MakeImage(p *Pile) {
-	width := len(p.grid)
+func MakeImage(p *Pile, opts Opts) {
 	upLeft := image.Point{0, 0}
-	lowRight := image.Point{width, width}
+	lowRight := image.Point{opts.Size, opts.Size}
 	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
 
 	for i, x := range p.grid {
@@ -177,7 +176,8 @@ func MakeImage(p *Pile) {
 			img.Set(i, j, c)
 		}
 	}
-	f, _ := os.Create("pile.png")
+	f, _ := os.Create(fmt.Sprintf(
+		"pile_%d-size_%d-iters_%d-height.png", opts.Size, opts.Iters, opts.Height))
 	png.Encode(f, img)
 }
 
@@ -204,6 +204,6 @@ func main() {
 		MakeChart(logs, opts)
 	}
 	if opts.Pixel {
-		MakeImage(&pile)
+		MakeImage(&pile, opts)
 	}
 }
